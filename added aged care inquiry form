@@ -1,0 +1,177 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aged Care Inquiry Workflow</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 24px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 16px;
+    }
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    .input-group input,
+    .input-group textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    button {
+      padding: 10px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Aged Care Inquiry Workflow</h2>
+    <form id="workflowForm">
+      <p>Hi, my name is <input type="text" name="staffName" placeholder="Your name" required />. I will ask you a few questions about you or the client.</p>
+      <p>Do you give me permission to collect this information and add it to our database?</p>
+      <div class="checkbox-group">
+        <label><input type="radio" name="consent" value="Yes" required /> Yes</label>
+        <label><input type="radio" name="consent" value="No" /> No</label>
+      </div>
+
+      <div class="input-group">
+        <label>Caller Name</label>
+        <input type="text" name="callerName" required />
+      </div>
+      <div class="input-group">
+        <label>Caller Phone Number</label>
+        <input type="tel" name="callerPhone" required />
+      </div>
+      <div class="input-group">
+        <label>Caller Email</label>
+        <input type="email" name="callerEmail" />
+      </div>
+      <div class="input-group">
+        <label>Relationship to Client</label>
+        <input type="text" name="callerRelation" />
+      </div>
+
+      <div class="input-group">
+        <label>Client Name</label>
+        <input type="text" name="clientName" required />
+      </div>
+      <div class="input-group">
+        <label>Service Required</label>
+        <input type="text" name="serviceRequired" required />
+      </div>
+
+      <div class="input-group">
+        <label>Client Funding Type</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="funding" value="HCP" /> HCP</label>
+          <label><input type="checkbox" name="funding" value="CHSP" /> CHSP</label>
+          <label><input type="checkbox" name="funding" value="Private Pay" /> Private Pay</label>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Notes</label>
+        <textarea name="notes" rows="4"></textarea>
+      </div>
+
+      <div class="input-group">
+        <label>Refer to Care Coordinator</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="coordinator" value="Jesse" /> Jesse</label>
+          <label><input type="checkbox" name="coordinator" value="Yvonne" /> Yvonne</label>
+          <label><input type="checkbox" name="coordinator" value="Issam" /> Issam</label>
+          <label><input type="checkbox" name="coordinator" value="Jennifer" /> Jennifer</label>
+        </div>
+      </div>
+
+      <p>Thank you for your enquiry. Are we able to keep in touch via phone or email?</p>
+      <div class="checkbox-group">
+        <label><input type="radio" name="followUpConsent" value="Yes" required /> Yes</label>
+        <label><input type="radio" name="followUpConsent" value="No" /> No</label>
+      </div>
+
+      <button type="submit">Submit Inquiry</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("workflowForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const form = new FormData(this);
+      const formData = {};
+
+      form.forEach((value, key) => {
+        if (formData[key]) {
+          if (!Array.isArray(formData[key])) {
+            formData[key] = [formData[key]];
+          }
+          formData[key].push(value);
+        } else {
+          formData[key] = value;
+        }
+      });
+
+      fetch("https://script.google.com/macros/s/AKfycbzhdStTyZwMf_Zd2O3kXNBwONJZ0Faj9xHyE5Kzw4JDJ5hYM0h1gkN5jaxTMSZ6C9bx/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === "success") {
+          alert("Inquiry submitted successfully!");
+          document.getElementById("workflowForm").reset();
+        } else {
+          alert("Submission failed: " + (result.message || "Unknown error"));
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Error submitting inquiry.");
+      });
+    });
+  </script>
+</body>
+</html>
